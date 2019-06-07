@@ -12,14 +12,31 @@
         <form @submit.prevent="submit" action="" method="GET">
             <h2> ¿Cuales son tus curso favoritos? </h2>
             <template v-for="curso in cursos">
-                <input v-model="cursosSeleccionados" type="checkbox" :id="curso.value" :value="curso.value">
-                <label :for="curso.value"> {{ curso.nombre }} </label>
-                <br>
+                <curso :curso="curso" @checked="selectCurso"></curso>
             </template>
             <button type="submit"> Enviar </button>
         </form>
     </div>
     <script>
+        Vue.component('curso', {
+            props: [ 'curso' ],
+            methods:{
+                onchange: function (ev) {
+                    // Emitimos un evento con dos parametros
+                    // Param 1: que curso es
+                    // Param 2: si esta checkeado o no (true o false)
+                    this.$emit('checked', this.curso.value, ev.target.checked)
+                }
+            },
+            template: `
+                <div>
+                    <input type="checkbox" :id="curso.value" :value="curso.value" @change="onchange">
+                    <label :for="curso.value"> {{ curso.nombre }} </label>
+                    <br>
+                </div>
+            `
+        })
+
         app = new Vue({
             el: '#app',
             data: {
@@ -36,6 +53,14 @@
                 submit: function () {
                     console.log('Se ejecuto el metodo submit');
                     console.log(this.cursosSeleccionados);
+                },
+                selectCurso: function (curso,checked) {
+                    if (checked) {
+                        this.cursosSeleccionados.push(curso)
+                    } else {
+                        let index = this.cursosSeleccionados.indexOf(curso)
+                        this.cursosSeleccionados.splice(index,1)
+                    }
                 }
             }
         })
